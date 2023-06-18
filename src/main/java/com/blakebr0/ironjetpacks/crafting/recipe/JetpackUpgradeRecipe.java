@@ -5,6 +5,7 @@ import com.blakebr0.ironjetpacks.item.JetpackItem;
 import com.blakebr0.ironjetpacks.mixins.ShapedRecipeAccessor;
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -16,14 +17,17 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 
 public class JetpackUpgradeRecipe extends ShapedRecipe {
+    private final ItemStack output;
+    
     public JetpackUpgradeRecipe(ResourceLocation id, String group, int recipeWidth, int recipeHeight, NonNullList<Ingredient> inputs, ItemStack output) {
         super(id, group, CraftingBookCategory.EQUIPMENT, recipeWidth, recipeHeight, inputs, output);
+        this.output = output;
     }
     
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
         ItemStack jetpack = inv.getItem(4);
-        ItemStack result = this.getResultItem().copy();
+        ItemStack result = this.getResultItem(registryAccess).copy();
         
         if (!jetpack.isEmpty() && jetpack.getItem() instanceof JetpackItem) {
             CompoundTag tag = jetpack.getTag();
@@ -45,7 +49,7 @@ public class JetpackUpgradeRecipe extends ShapedRecipe {
         @Override
         public JetpackUpgradeRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             ShapedRecipe recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json);
-            return new JetpackUpgradeRecipe(recipeId, ((ShapedRecipeAccessor) recipe).getGroup(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem());
+            return new JetpackUpgradeRecipe(recipeId, ((ShapedRecipeAccessor) recipe).getGroup(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem(null));
         }
         
         @Override
@@ -73,7 +77,7 @@ public class JetpackUpgradeRecipe extends ShapedRecipe {
                 ingredient.toNetwork(buffer);
             }
             
-            buffer.writeItem(recipe.getResultItem());
+            buffer.writeItem(recipe.output);
         }
     }
 }

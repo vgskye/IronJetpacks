@@ -31,7 +31,7 @@ public class IronJetpacks implements ModInitializer {
             .icon(() -> {
                 return new ItemStack(ModItems.STRAP.get());
             })
-            .displayItems((featureFlagSet, output, bl) -> {
+            .displayItems((featureFlagSet, output) -> {
                 for (Jetpack jetpack : JetpackRegistry.getInstance().getAllJetpacks()) {
                     output.accept(jetpack.cell);
                     output.accept(jetpack.thruster);

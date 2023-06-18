@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,12 +41,12 @@ public class JetpackUtils {
     public static ArmorMaterial makeArmorMaterial(Jetpack jetpack) {
         return new ArmorMaterial() {
             @Override
-            public int getDurabilityForSlot(EquipmentSlot slot) {
+            public int getDurabilityForType(ArmorItem.Type type) {
                 return 0;
             }
             
             @Override
-            public int getDefenseForSlot(EquipmentSlot slot) {
+            public int getDefenseForType(ArmorItem.Type type) {
                 return jetpack.armorPoints;
             }
             

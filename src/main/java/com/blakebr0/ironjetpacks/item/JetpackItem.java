@@ -32,7 +32,7 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
     private final Jetpack jetpack;
     
     public JetpackItem(Jetpack jetpack, Properties settings) {
-        super(JetpackUtils.makeArmorMaterial(jetpack), EquipmentSlot.CHEST, settings.durability(0).rarity(jetpack.rarity));
+        super(JetpackUtils.makeArmorMaterial(jetpack), Type.CHESTPLATE, settings.durability(0).rarity(jetpack.rarity));
         this.jetpack = jetpack;
     }
     
