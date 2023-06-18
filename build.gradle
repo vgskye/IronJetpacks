@@ -19,6 +19,7 @@ repositories {
         }
     }
     maven { url "https://storage.googleapis.com/devan-maven/" }
+    maven { url "https://ueaj.dev/maven" }
 }
 
 dependencies {
@@ -35,6 +36,7 @@ dependencies {
     }
     modImplementation "dev.architectury:architectury-fabric:6.3.49"
     modImplementation(include("teamreborn:energy:${project.tr_energy_version}"))
+    modImplementation(include("net.devtech:arrp:${project.arrp_version}"))
 }
 
 processResources {

@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -134,7 +133,7 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
     
     @Override
     public int getBarWidth(ItemStack stack) {
-        EnergyStorage energy = EnergyStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack));
+        EnergyStorage energy = EnergyStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
         double stored = energy.getCapacity() - energy.getAmount();
         return (int) Math.round(13.0F - (stored / energy.getCapacity()) * 13.0F);
     }
@@ -148,7 +147,7 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
     @Override
     public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag advanced) {
         if (!this.jetpack.creative) {
-            EnergyStorage energy = EnergyStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack));
+            EnergyStorage energy = EnergyStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
             tooltip.add(Component.literal(UnitUtils.formatEnergy(energy.getAmount(), null)).withStyle(ChatFormatting.GRAY).append(" / ").append(Component.literal(UnitUtils.formatEnergy(jetpack.capacity, null))));
         } else {
             tooltip.add(Component.literal("-1 E / ").withStyle(ChatFormatting.GRAY).append(ModTooltips.INFINITE.color(ChatFormatting.GRAY)).append(" E"));
@@ -173,19 +172,6 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
                 tooltip.add(ModTooltips.DESCEND_SPEED.args(this.jetpack.speedHover));
                 tooltip.add(ModTooltips.SPRINT_MODIFIER.args(this.jetpack.sprintSpeed));
                 tooltip.add(ModTooltips.SPRINT_FUEL_MODIFIER.args(this.jetpack.sprintFuel));
-            }
-        }
-    }
-    
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
-        if (this.allowedIn(group)) {
-            stacks.add(new ItemStack(this));
-            
-            if (!jetpack.creative) {
-                ItemStack stack = new ItemStack(this);
-                stack.getOrCreateTag().putDouble("energy", jetpack.capacity);
-                stacks.add(stack);
             }
         }
     }

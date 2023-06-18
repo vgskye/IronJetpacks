@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -25,7 +26,7 @@ public class ModItems {
     public static final Supplier<Item> EXPERT_COIL = register("expert_coil");
     
     public static void register() {
-        Registry<Item> registry = Registry.ITEM;
+        Registry<Item> registry = BuiltInRegistries.ITEM;
         JetpackRegistry jetpacks = JetpackRegistry.getInstance();
         
         ENTRIES.forEach((id, item) -> Registry.register(registry, id, item.get()));
@@ -34,21 +35,21 @@ public class ModItems {
         
         // Energy Cells
         for (Jetpack jetpack : jetpacks.getAllJetpacks()) {
-            ComponentItem item = new ComponentItem(jetpack, "cell", new Item.Properties().tab(ITEM_GROUP));
+            ComponentItem item = new ComponentItem(jetpack, "cell", new Item.Properties());
             jetpack.setCellItem(item);
             Registry.register(registry, new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_cell"), item);
         }
         
         // Thrusters
         for (Jetpack jetpack : jetpacks.getAllJetpacks()) {
-            ComponentItem item = new ComponentItem(jetpack, "thruster", new Item.Properties().tab(ITEM_GROUP));
+            ComponentItem item = new ComponentItem(jetpack, "thruster", new Item.Properties());
             jetpack.setThrusterItem(item);
             Registry.register(registry, new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_thruster"), item);
         }
         
         // Capacitors
         for (Jetpack jetpack : jetpacks.getAllJetpacks()) {
-            ComponentItem item = new ComponentItem(jetpack, "capacitor", new Item.Properties().tab(ITEM_GROUP));
+            ComponentItem item = new ComponentItem(jetpack, "capacitor", new Item.Properties());
             jetpack.setCapacitorItem(item);
             Registry.register(registry, new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_capacitor"), item);
         }
@@ -60,7 +61,7 @@ public class ModItems {
     }
     
     private static Supplier<Item> register(String name) {
-        return register(name, Suppliers.memoize(() -> new Item(new Item.Properties().tab(ITEM_GROUP))));
+        return register(name, Suppliers.memoize(() -> new Item(new Item.Properties())));
     }
     
     private static Supplier<Item> register(String name, Supplier<Item> item) {

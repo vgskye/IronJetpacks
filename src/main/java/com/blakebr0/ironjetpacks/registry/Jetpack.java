@@ -1,10 +1,10 @@
 package com.blakebr0.ironjetpacks.registry;
 
-import com.blakebr0.ironjetpacks.IronJetpacks;
 import com.blakebr0.ironjetpacks.item.ComponentItem;
 import com.blakebr0.ironjetpacks.item.JetpackItem;
 import com.google.common.base.Suppliers;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -45,7 +45,7 @@ public class Jetpack {
         this.armorPoints = armorPoints;
         this.enchantablilty = enchantability;
         this.craftingMaterialString = craftingMaterialString;
-        this.item = Suppliers.memoize(() -> new JetpackItem(this, new Item.Properties().tab(IronJetpacks.ITEM_GROUP)));
+        this.item = Suppliers.memoize(() -> new JetpackItem(this, new Item.Properties()));
     }
     
     public Jetpack setStats(double capacity, double usage, double speedVert, double accelVert, double speedSide, double speedHover, double speedHoverSlow, double sprintSpeed, double sprintFuel) {
@@ -116,11 +116,11 @@ public class Jetpack {
                 if (!this.craftingMaterialString.equalsIgnoreCase("null")) {
                     String[] parts = craftingMaterialString.split(":");
                     if (parts.length >= 3 && this.craftingMaterialString.startsWith("tag:")) {
-                        TagKey<Item> tag = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(parts[1], parts[2]));
+                        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(parts[1], parts[2]));
                         if (tag != null)
                             this.craftingMaterial = Ingredient.of(tag);
                     } else if (parts.length >= 2) {
-                        Item item = Registry.ITEM.get(new ResourceLocation(parts[0], parts[1]));
+                        Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(parts[0], parts[1]));
                         if (item != null)
                             this.craftingMaterial = Ingredient.of(item);
                     }

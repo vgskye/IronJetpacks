@@ -2,31 +2,21 @@ package com.blakebr0.ironjetpacks.client;
 
 import com.blakebr0.ironjetpacks.IronJetpacks;
 import com.blakebr0.ironjetpacks.registry.JetpackRegistry;
-import com.google.common.collect.Maps;
-import com.mojang.datafixers.util.Pair;
+import net.devtech.arrp.api.RRPCallback;
+import net.devtech.arrp.api.RuntimeResourcePack;
+import net.devtech.arrp.json.models.JModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
 @Environment(EnvType.CLIENT)
 public class ModelHandler {
+    public static final RuntimeResourcePack RESOURCE_PACK = RuntimeResourcePack.create("iron-jetpacks:iron_jetpacks");
     private static final Logger LOGGER = LogManager.getLogger(IronJetpacks.NAME);
     
     public static void onClientSetup() {
@@ -40,53 +30,46 @@ public class ModelHandler {
         ResourceLocation capacitor = new ResourceLocation(IronJetpacks.MOD_ID, "item/capacitor");
         ResourceLocation thruster = new ResourceLocation(IronJetpacks.MOD_ID, "item/thruster");
         ResourceLocation jetpack = new ResourceLocation(IronJetpacks.MOD_ID, "item/jetpack");
-        Map<ModelResourceLocation, UnbakedModel> modelMap = Maps.newHashMap();
         JetpackRegistry.getInstance().getAllJetpacks().forEach(pack -> {
-            ResourceLocation cellLocation = Registry.ITEM.getKey(pack.cell);
+            ResourceLocation cellLocation = BuiltInRegistries.ITEM.getKey(pack.cell);
             if (cellLocation != null) {
                 ModelResourceLocation location = new ModelResourceLocation(cellLocation, "inventory");
-                provideModel(modelMap, location, cell);
+                provideModel(location, "cell");
             }
             
-            ResourceLocation capacitorLocation = Registry.ITEM.getKey(pack.capacitor);
+            ResourceLocation capacitorLocation = BuiltInRegistries.ITEM.getKey(pack.capacitor);
             if (capacitorLocation != null) {
                 ModelResourceLocation location = new ModelResourceLocation(capacitorLocation, "inventory");
-                provideModel(modelMap, location, capacitor);
+                provideModel(location, "capacitor");
             }
             
-            ResourceLocation thrusterLocation = Registry.ITEM.getKey(pack.thruster);
+            ResourceLocation thrusterLocation = BuiltInRegistries.ITEM.getKey(pack.thruster);
             if (thrusterLocation != null) {
                 ModelResourceLocation location = new ModelResourceLocation(thrusterLocation, "inventory");
-                provideModel(modelMap, location, thruster);
+                provideModel(location, "thruster");
             }
             
-            ResourceLocation jetpackLocation = Registry.ITEM.getKey(pack.item.get());
+            ResourceLocation jetpackLocation = BuiltInRegistries.ITEM.getKey(pack.item.get());
             if (jetpackLocation != null) {
                 ModelResourceLocation location = new ModelResourceLocation(jetpackLocation, "inventory");
-                provideModel(modelMap, location, jetpack);
+                provideModel(location, "jetpack");
             }
         });
-        ModelLoadingRegistry.INSTANCE.registerVariantProvider(resourceManager -> (modelIdentifier, modelProviderContext) -> {
-            return modelMap.get(modelIdentifier);
-        });
+        RRPCallback.BEFORE_VANILLA.register(a -> a.add(RESOURCE_PACK));
     }
     
-    private static void provideModel(Map<ModelResourceLocation, UnbakedModel> modelMap, ModelResourceLocation modelIdentifier, ResourceLocation redirectedId) {
-        modelMap.put(modelIdentifier, new UnbakedModel() {
-            @Override
-            public Collection<ResourceLocation> getDependencies() {
-                return Collections.emptyList();
-            }
-            
-            @Override
-            public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
-                return Collections.emptyList();
-            }
-            
-            @Override
-            public BakedModel bake(ModelBakery loader, Function<Material, TextureAtlasSprite> textureGetter, ModelState rotationContainer, ResourceLocation modelId) {
-                return loader.bake(redirectedId, rotationContainer);
-            }
-        });
+    private static void provideModel(ModelResourceLocation modelIdentifier, String redirectedId) {
+        if (redirectedId.equals("jetpack")) {
+            RESOURCE_PACK.addModel(JModel.model().parent("item/generated")
+                            .textures(JModel.textures()
+                                    .layer0("iron-jetpacks:item/jetpack_strap")
+                                    .layer1("iron-jetpacks:item/" + redirectedId)
+                            ),
+                    new ResourceLocation("iron-jetpacks:item/" + modelIdentifier.getPath()));
+        } else {
+            RESOURCE_PACK.addModel(JModel.model().parent("item/generated")
+                            .textures(JModel.textures().layer0("iron-jetpacks:item/" + redirectedId)),
+                    new ResourceLocation("iron-jetpacks:item/" + modelIdentifier.getPath()));
+        }
     }
 }

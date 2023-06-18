@@ -10,13 +10,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 
 public class JetpackUpgradeRecipe extends ShapedRecipe {
     public JetpackUpgradeRecipe(ResourceLocation id, String group, int recipeWidth, int recipeHeight, NonNullList<Ingredient> inputs, ItemStack output) {
-        super(id, group, recipeWidth, recipeHeight, inputs, output);
+        super(id, group, CraftingBookCategory.EQUIPMENT, recipeWidth, recipeHeight, inputs, output);
     }
     
     @Override
