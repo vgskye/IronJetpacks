@@ -55,7 +55,7 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
             JetpackItem jetpack = (JetpackItem) item;
             if (jetpack.isEngineOn(chest)) {
                 boolean hover = jetpack.isHovering(chest);
-                if (InputHandler.isHoldingUp(player) || hover && !player.isOnGround()) {
+                if (InputHandler.isHoldingUp(player) || hover && !player.onGround()) {
                     Jetpack info = jetpack.getJetpack();
                     
                     double hoverSpeed = InputHandler.isHoldingDown(player) ? info.speedHover : info.speedHoverSlow;
@@ -112,7 +112,7 @@ public class JetpackItem extends DyeableArmorItem implements Colored, DyeableLea
                                 player.moveRelative(1, new Vec3(-speedSideways, 0, 0));
                             }
     
-                            if (!player.level.isClientSide()) {
+                            if (!player.level().isClientSide()) {
                                 player.fallDistance = 0.0F;
         
                                 if (player instanceof ServerPlayer) {

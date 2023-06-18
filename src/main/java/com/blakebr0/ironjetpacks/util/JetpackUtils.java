@@ -27,7 +27,7 @@ public class JetpackUtils {
                 ItemSlotStorage storage = new ItemSlotStorage(player, EquipmentSlot.CHEST);
                 if (jetpack.isEngineOn(stack) && (EnergyStorage.ITEM.find(stack, ContainerItemContext.ofSingleSlot(storage)).getAmount() > 0 || player.isCreative() || jetpack.getJetpack().creative)) {
                     if (jetpack.isHovering(stack)) {
-                        return !player.isOnGround();
+                        return !player.onGround();
                     } else {
                         return InputHandler.isHoldingUp(player);
                     }
