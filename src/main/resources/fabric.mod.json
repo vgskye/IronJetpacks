@@ -29,7 +29,6 @@
     "fabricloader": ">=0.11.0",
     "fabric": "*",
     "architectury": "*",
-    "autoconfig1u": "*",
     "minecraft": ">=1.19"
   }
 }
