@@ -2,171 +2,178 @@ package com.blakebr0.ironjetpacks.crafting;
 
 import com.blakebr0.ironjetpacks.IronJetpacks;
 import com.blakebr0.ironjetpacks.config.ModConfigs;
-import com.blakebr0.ironjetpacks.crafting.recipe.JetpackUpgradeRecipe;
 import com.blakebr0.ironjetpacks.item.ModItems;
+import com.blakebr0.ironjetpacks.mixins.JRecipeAccessor;
 import com.blakebr0.ironjetpacks.registry.Jetpack;
 import com.blakebr0.ironjetpacks.registry.JetpackRegistry;
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import net.minecraft.core.NonNullList;
+import net.devtech.arrp.json.recipe.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
+
+import java.util.function.BiConsumer;
 
 public class JetpackDynamicRecipeManager {
-    public static void appendRecipes(BiConsumer<ResourceLocation, Recipe<?>> appender) {
+    public static void appendRecipes(BiConsumer<ResourceLocation, JRecipe> appender) {
         JetpackRegistry.getInstance().getAllJetpacks().forEach(jetpack -> {
-            ShapedRecipe cell = makeCellRecipe(jetpack);
-            ShapedRecipe thruster = makeThrusterRecipe(jetpack);
-            ShapedRecipe capacitor = makeCapacitorRecipe(jetpack);
-            ShapedRecipe jetpackSelf = makeJetpackRecipe(jetpack);
-            JetpackUpgradeRecipe jetpackUpgrade = makeJetpackUpgradeRecipe(jetpack);
+            Tuple<ResourceLocation, JRecipe> cell = makeCellRecipe(jetpack);
+            Tuple<ResourceLocation, JRecipe> thruster = makeThrusterRecipe(jetpack);
+            Tuple<ResourceLocation, JRecipe> capacitor = makeCapacitorRecipe(jetpack);
+            Tuple<ResourceLocation, JRecipe> jetpackSelf = makeJetpackRecipe(jetpack);
+            Tuple<ResourceLocation, JRecipe> jetpackUpgrade = makeJetpackUpgradeRecipe(jetpack);
             if (cell != null)
-                appender.accept(cell.getId(), cell);
+                appender.accept(cell.getA(), cell.getB());
             if (thruster != null)
-                appender.accept(thruster.getId(), thruster);
+                appender.accept(thruster.getA(), thruster.getB());
             if (capacitor != null)
-                appender.accept(capacitor.getId(), capacitor);
+                appender.accept(capacitor.getA(), capacitor.getB());
             if (jetpackSelf != null)
-                appender.accept(jetpackSelf.getId(), jetpackSelf);
+                appender.accept(jetpackSelf.getA(), jetpackSelf.getB());
             if (jetpackUpgrade != null)
-                appender.accept(jetpackUpgrade.getId(), jetpackUpgrade);
+                appender.accept(jetpackUpgrade.getA(), jetpackUpgrade.getB());
         });
     }
-    
-    private static ShapedRecipe makeCellRecipe(Jetpack jetpack) {
+
+    private static Tuple<ResourceLocation, JRecipe> makeCellRecipe(Jetpack jetpack) {
         if (!ModConfigs.get().recipe.enableCellRecipes)
             return null;
-        
+
         JetpackRegistry jetpacks = JetpackRegistry.getInstance();
-        
-        Ingredient material = jetpack.getCraftingMaterial();
+
+        JIngredient material = jetpack.getCraftingMaterial();
         Item coilItem = jetpacks.getCoilForTier(jetpack.tier);
-        if (material == Ingredient.EMPTY || coilItem == null)
+        if (material == null || coilItem == null)
             return null;
-        
-        Ingredient coil = Ingredient.of(coilItem);
-        Ingredient redstone = Ingredient.of(Items.REDSTONE);
-        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
-                Ingredient.EMPTY, redstone, Ingredient.EMPTY,
-                material, coil, material,
-                Ingredient.EMPTY, redstone, Ingredient.EMPTY
+
+        JPattern pattern = JPattern.pattern(
+                " R ",
+                "MCM",
+                " R "
         );
-        
+        JKeys keys = JKeys
+                .keys()
+                .key("R", JIngredient.ingredient().item(Items.REDSTONE))
+                .key("M", material)
+                .key("C", JIngredient.ingredient().item(coilItem));
+
         ResourceLocation name = new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_cell");
-        ItemStack output = new ItemStack(jetpack.cell);
-        
-        return new ShapedRecipe(name, "iron-jetpacks:cells", CraftingBookCategory.MISC, 3, 3, inputs, output);
+
+        return new Tuple<>(name, JRecipe.shaped(pattern, keys, JResult.item(jetpack.cell)));
     }
-    
-    private static ShapedRecipe makeThrusterRecipe(Jetpack jetpack) {
+
+    private static Tuple<ResourceLocation, JRecipe> makeThrusterRecipe(Jetpack jetpack) {
         if (!ModConfigs.get().recipe.enableThrusterRecipes)
             return null;
-        
+
         JetpackRegistry jetpacks = JetpackRegistry.getInstance();
-        
-        Ingredient material = jetpack.getCraftingMaterial();
+
+        JIngredient material = jetpack.getCraftingMaterial();
         Item coilItem = jetpacks.getCoilForTier(jetpack.tier);
-        if (material == Ingredient.EMPTY || coilItem == null)
+        if (material == null || coilItem == null)
             return null;
-        
-        Ingredient coil = Ingredient.of(coilItem);
-        Ingredient cell = Ingredient.of(jetpack.cell);
-        Ingredient furnace = Ingredient.of(Blocks.FURNACE);
-        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
-                material, coil, material,
-                coil, cell, coil,
-                material, furnace, material
+
+        JPattern pattern = JPattern.pattern(
+                "MCM",
+                "CcC",
+                "MFM"
         );
-        
+        JKeys keys = JKeys
+                .keys()
+                .key("M", material)
+                .key("C", JIngredient.ingredient().item(coilItem))
+                .key("c", JIngredient.ingredient().item(jetpack.cell))
+                .key("F", JIngredient.ingredient().item(Items.FURNACE));
+
         ResourceLocation name = new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_thruster");
-        ItemStack output = new ItemStack(jetpack.thruster);
-        
-        return new ShapedRecipe(name, "iron-jetpacks:thrusters", CraftingBookCategory.MISC, 3, 3, inputs, output);
+        return new Tuple<>(name, JRecipe.shaped(pattern, keys, JResult.item(jetpack.thruster)));
     }
-    
-    private static ShapedRecipe makeCapacitorRecipe(Jetpack jetpack) {
+
+    private static Tuple<ResourceLocation, JRecipe> makeCapacitorRecipe(Jetpack jetpack) {
         if (!ModConfigs.get().recipe.enableCapacitorRecipes)
             return null;
-        
-        Ingredient material = jetpack.getCraftingMaterial();
-        if (material == Ingredient.EMPTY)
+
+        JIngredient material = jetpack.getCraftingMaterial();
+        if (material == null)
             return null;
-        
-        Ingredient cell = Ingredient.of(jetpack.cell);
-        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
-                material, cell, material,
-                material, cell, material,
-                material, cell, material
+
+        JPattern pattern = JPattern.pattern(
+                "McM",
+                "McM",
+                "McM"
         );
-        
+        JKeys keys = JKeys
+                .keys()
+                .key("M", material)
+                .key("c", JIngredient.ingredient().item(jetpack.cell));
+
         ResourceLocation name = new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_capacitor");
-        ItemStack output = new ItemStack(jetpack.capacitor);
-        
-        return new ShapedRecipe(name, "iron-jetpacks:capacitors", CraftingBookCategory.MISC, 3, 3, inputs, output);
+
+        return new Tuple<>(name, JRecipe.shaped(pattern, keys, JResult.item(jetpack.capacitor)));
     }
-    
-    private static ShapedRecipe makeJetpackRecipe(Jetpack jetpack) {
+
+    private static Tuple<ResourceLocation, JRecipe> makeJetpackRecipe(Jetpack jetpack) {
         if (!ModConfigs.get().recipe.enableJetpackRecipes)
             return null;
-        
+
         JetpackRegistry jetpacks = JetpackRegistry.getInstance();
         if (jetpack.tier != jetpacks.getLowestTier())
             return null;
-        
-        Ingredient material = jetpack.getCraftingMaterial();
-        if (material == Ingredient.EMPTY)
+
+        JIngredient material = jetpack.getCraftingMaterial();
+        if (material == null)
             return null;
-        
-        Ingredient capacitor = Ingredient.of(jetpack.capacitor);
-        Ingredient thruster = Ingredient.of(jetpack.thruster);
-        Ingredient strap = Ingredient.of(ModItems.STRAP.get());
-        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
-                material, capacitor, material,
-                material, strap, material,
-                thruster, Ingredient.EMPTY, thruster
+
+        JPattern pattern = JPattern.pattern(
+                "MfM",
+                "MSM",
+                "T T"
         );
-        
+        JKeys keys = JKeys
+                .keys()
+                .key("M", material)
+                .key("f", JIngredient.ingredient().item(jetpack.capacitor))
+                .key("S", JIngredient.ingredient().item(ModItems.STRAP.get()))
+                .key("T", JIngredient.ingredient().item(jetpack.thruster));
+
         ResourceLocation name = new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_jetpack");
-        ItemStack output = new ItemStack(jetpack.item.get());
-        
-        return new ShapedRecipe(name, "iron-jetpacks:jetpacks", CraftingBookCategory.MISC, 3, 3, inputs, output);
+
+        return new Tuple<>(name, JRecipe.shaped(pattern, keys, JResult.item(jetpack.item.get())));
     }
-    
-    private static JetpackUpgradeRecipe makeJetpackUpgradeRecipe(Jetpack jetpack) {
+
+    private static Tuple<ResourceLocation, JRecipe> makeJetpackUpgradeRecipe(Jetpack jetpack) {
         if (!ModConfigs.get().recipe.enableJetpackRecipes)
             return null;
-        
+
         JetpackRegistry jetpacks = JetpackRegistry.getInstance();
         if (jetpack.tier == jetpacks.getLowestTier())
             return null;
-        
-        Ingredient material = jetpack.getCraftingMaterial();
-        if (material == Ingredient.EMPTY)
+
+        JIngredient material = jetpack.getCraftingMaterial();
+        if (material == null)
             return null;
-        
-        Ingredient capacitor = Ingredient.of(jetpack.capacitor);
-        Ingredient thruster = Ingredient.of(jetpack.thruster);
-        Ingredient jetpackTier = Ingredient.of(ModRecipeSerializers.ALL_JETPACKS.stream()
+
+        JIngredient jetpackTier = ModRecipeSerializers.ALL_JETPACKS.stream()
                 .filter(item -> item.getJetpack().tier == jetpack.tier - 1)
-                .toArray(ItemLike[]::new));
-        NonNullList<Ingredient> inputs = NonNullList.of(Ingredient.EMPTY,
-                material, capacitor, material,
-                material, jetpackTier, material,
-                thruster, Ingredient.EMPTY, thruster
+                .map(item -> JIngredient.ingredient().item(item))
+                .reduce(JIngredient.ingredient(), JIngredient::add);
+        JPattern pattern = JPattern.pattern(
+                "MfM",
+                "MJM",
+                "T T"
         );
-        
+        JKeys keys = JKeys
+                .keys()
+                .key("M", material)
+                .key("f", JIngredient.ingredient().item(jetpack.capacitor))
+                .key("J", jetpackTier)
+                .key("T", JIngredient.ingredient().item(jetpack.thruster));
+
         ResourceLocation name = new ResourceLocation(IronJetpacks.MOD_ID, jetpack.name + "_jetpack");
-        ItemStack output = new ItemStack(jetpack.item.get());
-        
-        return new JetpackUpgradeRecipe(name, "iron-jetpacks:jetpacks", 3, 3, inputs, output);
+
+        JRecipe recipe = JRecipe.shaped(pattern, keys, JResult.item(jetpack.item.get()));
+        ((JRecipeAccessor) recipe).setType("iron-jetpacks:crafting_jetpack_upgrade");
+
+        return new Tuple<>(name, recipe);
     }
 }

@@ -4,7 +4,9 @@
   "package": "com.blakebr0.ironjetpacks.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinRecipeManager", "ServerPlayNetworkHandlerAccessor", "ShapedRecipeAccessor"
+    "JRecipeAccessor",
+    "ServerPlayNetworkHandlerAccessor",
+    "ShapedRecipeAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,6 +3,7 @@ package com.blakebr0.ironjetpacks.registry;
 import com.blakebr0.ironjetpacks.item.ComponentItem;
 import com.blakebr0.ironjetpacks.item.JetpackItem;
 import com.google.common.base.Suppliers;
+import net.devtech.arrp.json.recipe.JIngredient;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,7 @@ public class Jetpack {
     public int armorPoints;
     public int enchantablilty;
     public String craftingMaterialString;
-    private Ingredient craftingMaterial;
+    private JIngredient craftingMaterial;
     public Supplier<JetpackItem> item;
     public boolean creative = false;
     public boolean disabled = false;
@@ -109,20 +110,19 @@ public class Jetpack {
         return this.tier;
     }
     
-    public Ingredient getCraftingMaterial() {
-        if (this.craftingMaterial == null || this.craftingMaterial.isEmpty()) {
-            this.craftingMaterial = Ingredient.EMPTY;
+    public JIngredient getCraftingMaterial() {
+        if (this.craftingMaterial == null) {
             try {
                 if (!this.craftingMaterialString.equalsIgnoreCase("null")) {
                     String[] parts = craftingMaterialString.split(":");
                     if (parts.length >= 3 && this.craftingMaterialString.startsWith("tag:")) {
                         TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(parts[1], parts[2]));
                         if (tag != null)
-                            this.craftingMaterial = Ingredient.of(tag);
+                            this.craftingMaterial = JIngredient.ingredient().tag(tag.location().toString());
                     } else if (parts.length >= 2) {
                         Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(parts[0], parts[1]));
                         if (item != null)
-                            this.craftingMaterial = Ingredient.of(item);
+                            this.craftingMaterial = JIngredient.ingredient().item(item);
                     }
                 }
             } catch (Exception e) {
