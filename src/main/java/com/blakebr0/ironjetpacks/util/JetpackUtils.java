@@ -65,7 +65,6 @@ public class JetpackUtils {
                 return null;
             }
             
-            @Environment(EnvType.CLIENT)
             @Override
             public String getName() {
                 return "iron-jetpacks:jetpack";

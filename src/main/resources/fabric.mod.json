@@ -17,6 +17,9 @@
     ],
     "kubejs-set-recipes": [
       "com.blakebr0.ironjetpacks.compat.kubejs.KubeJSCompat"
+    ],
+    "emi": [
+      "com.blakebr0.ironjetpacks.compat.emi.EmiCompat"
     ]
   },
   "mixins": [
